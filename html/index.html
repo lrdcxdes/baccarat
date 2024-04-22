@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Баккара | BETA</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/gh/eliyantosarage/font-awesome-pro@main/fontawesome-pro-6.5.1-web/css/all.min.css"
+          rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Баккара</h1>
+        <div class="result-history">
+            <!--     Results       -->
+        </div>
+    </div>
+    <div class="right-text">
+        <span class="right-text"><span class="balance">1 000</span> <i class="fa-solid fa-circle-dollar"></i></span>
+    </div>
+    <div class="cards">
+        <div class="cards-left">
+            <div class="card-additional left">
+
+            </div>
+            <div class="card-1 left">
+
+            </div>
+            <div class="card-2 left">
+
+            </div>
+
+            <div class="label">Игрок</div>
+            <div class="score left">[-]</div>
+        </div>
+        <div class="cards-right">
+            <div class="card-additional right">
+
+            </div>
+            <div class="card-1 right">
+
+            </div>
+            <div class="card-2 right">
+
+            </div>
+
+            <div class="label">Банкир</div>
+            <div class="score right">[-]</div>
+        </div>
+    </div>
+
+    <div class="menu">
+        <div class="left-menu">
+            <div class="span-btn">
+                <span class="span-text">Время на ставку</span>
+                <span class="span-inside"><span class="time">00:00</span> <i class="fa-regular fa-stopwatch"></i></span>
+            </div>
+
+            <div class="span-btn mt-5">
+                <span class="span-text">Размер ставки</span>
+                <span class="span-inside green"><span class="bet-amount">1000</span> <i
+                        class="fa-solid fa-circle-dollar"></i></span>
+            </div>
+
+            <div class="span-btn mt-5">
+                <span class="span-arrow"><i class="fa fa-arrow-up bet-plus"></i></span>
+                <span class="span-arrow"><i class="fa fa-arrow-down bet-minus"></i></span>
+                <span class="span-text">Изменить размер ставки</span>
+            </div>
+        </div>
+        <div class="bet-menu">
+            <button class="bet-button" data-value="player">
+                <span class="history-item bet-item" data-value="player">И</span>
+                <span class="bet-text">Игрок</span>
+                <span class="bet-info">1:1</span>
+            </button>
+            <button class="bet-button" data-value="tie">
+                <span class="history-item bet-item" data-value="tie">Н</span>
+                <span class="bet-text">Ничья</span>
+                <span class="bet-info">8:1</span>
+            </button>
+            <div class="pair-buttons">
+                <button class="bet-button" data-value="player_pair">
+                    <span class="history-item bet-item" data-value="player">П</span>
+                    <span class="bet-text">Пара</span>
+                    <span class="bet-info">10:1</span>
+                </button>
+                <button class="bet-button" data-value="banker_pair">
+                    <span class="history-item bet-item" data-value="banker">П</span>
+                    <span class="bet-text">Пара</span>
+                    <span class="bet-info">10:1</span>
+                </button>
+            </div>
+            <button class="bet-button" data-value="banker">
+                <span class="history-item bet-item" data-value="banker">Б</span>
+                <span class="bet-text">Банкир</span>
+                <span class="bet-info">1:1</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let socket = new WebSocket("ws://localhost:80/game");
+        socket.onopen = function (e) {
+            console.log("[open] Соединение установлено");
+            socket.send(JSON.stringify({
+                type: 'name',
+                name: 'player'
+            }));
+        };
+        socket.onmessage = function (event) {
+            let data = JSON.parse(event.data);
+            console.log(data);
+            if (data.type === 'clear') {
+                $('.card-additional.left').html('');
+                $('.card-additional.right').html('');
+                $('.card-1.left').html('');
+                $('.card-1.right').html('');
+                $('.card-2.left').html('');
+                $('.card-2.right').html('');
+                $('.score.left').html('[-]');
+                $('.score.right').html('[-]');
+                $('.bet-button').attr('disabled', false);
+                $('.left-menu .span-btn').show();
+                playSound('clear')
+            } else if (data.type === "start") {
+                // disable all buttons in bet-menu
+                $('.bet-button').attr('disabled', true);
+                // hide left-menu
+                $('.left-menu .span-btn').hide();
+            } else if (data.type === "time") {
+                let time = data.time;
+                // make in format 00:00 example 00:08
+                let minutes = Math.floor(time / 60);
+                let seconds = Math.floor(time % 60);
+                let timeText = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                const t = $('.time');
+                if (seconds === 0 && minutes === 0) {
+                    t.html('00:00');
+                }
+                t.html(timeText);
+            } else if (data.type === "history") {
+                let history = data.history;
+                let resultHistory = $('.result-history .history-item');
+                resultHistory.remove();
+                for (let i = 0; i < history.length; i++) {
+                    let resultText = '';
+                    if (history[i].winner === 'banker') {
+                        resultText = 'Б';
+                    } else if (history[i].winner === 'player') {
+                        resultText = 'И';
+                    } else if (history[i].winner === 'tie') {
+                        resultText = 'Н';
+                    }
+                    $('.result-history').prepend(`<span class="history-item" data-value="${history[i].winner}">${resultText}</span>`);
+                }
+            } else if (data.type === 'deal') {
+                // disable all buttons in bet-menu
+                $('.bet-button').attr('disabled', true);
+                // hide left-menu
+                $('.left-menu .span-btn').hide();
+
+                const deal_type = data.deal_type;
+                const card = data.card;
+                const score = data.score;
+                const index = data.index;
+                let cardHtml = `<img src="/static/cards/${card}.svg" alt="${card}">`;
+                playSound('deal');
+                if (deal_type === 'banker') {
+                    if (index === 0) {
+                        $('.card-1.right').html(cardHtml);
+                    } else if (index === 1) {
+                        $('.card-2.right').html(cardHtml);
+                    } else if (index === 2) {
+                        $('.card-additional.right').html(cardHtml);
+                    }
+                } else if (deal_type === 'player') {
+                    if (index === 0) {
+                        $('.card-1.left').html(cardHtml);
+                    } else if (index === 1) {
+                        $('.card-2.left').html(cardHtml);
+                    } else if (index === 2) {
+                        $('.card-additional.left').html(cardHtml);
+                    }
+                }
+                // set score
+                if (deal_type === 'banker') {
+                    $('.score.right').html(`[${score}]`);
+                } else if (deal_type === 'player') {
+                    $('.score.left').html(`[${score}]`);
+                }
+            } else if (data.type === 'result') {
+                // winner
+                let winner = data.winner;
+                let resultText = '';
+                if (winner === 'banker') {
+                    resultText = 'Б';
+                } else if (winner === 'player') {
+                    resultText = 'И';
+                } else if (winner === 'tie') {
+                    resultText = 'Н';
+                }
+                let resultHistory = $('.result-history .history-item');
+                // if len > 9, then remove last and put first
+                if (resultHistory.length > 9) {
+                    resultHistory.last().remove();
+                }
+                $('.result-history').prepend(`<span class="history-item" data-value="${winner}">${resultText}</span>`);
+            } else if (data.type === "game") {
+                let banker = data.banker;
+                let player = data.player;
+
+                $('.score.right').html(`[${banker.score}]`);
+                $('.score.left').html(`[${player.score}]`);
+
+                $('.card-1.right').html(`<img src="/static/cards/${banker.cards[0]}.svg" alt="${banker.cards[0]}">`);
+                if (banker.cards.length > 1) {
+                    $('.card-2.right').html(`<img src="/static/cards/${banker.cards[1]}.svg" alt="${banker.cards[1]}">`);
+                }
+                if (banker.cards.length > 2) {
+                    $('.card-additional.right').html(`<img src="/static/cards/${banker.cards[2]}.svg" alt="${banker.cards[2]}">`);
+                }
+
+                $('.card-1.left').html(`<img src="/static/cards/${player.cards[0]}.svg" alt="${player.cards[0]}">`);
+                if (player.cards.length > 1) {
+                    $('.card-2.left').html(`<img src="/static/cards/${player.cards[1]}.svg" alt="${player.cards[1]}">`);
+                }
+                if (player.cards.length > 2) {
+                    $('.card-additional.left').html(`<img src="/static/cards/${player.cards[2]}.svg" alt="${player.cards[2]}">`);
+                }
+
+            }
+        };
+        socket.onclose = function (event) {
+            if (event.wasClean) {
+                console.log(`[close] Соединение закрыто чисто, код=${event.code} причина=${event.reason}`);
+            } else {
+                console.log('[close] Соединение прервано');
+            }
+        };
+        socket.onerror = function (error) {
+            console.log(`[error] ${error.message}`);
+        };
+
+        const sounds = {
+            'deal': new Audio('/static/audio/deal.m4a'),
+            'clear': new Audio('/static/audio/clear.m4a'),
+        }
+
+        function playSound(sound) {
+            sounds[sound].play();
+        }
+
+        let betAmount = 1000; // 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000
+
+        function changeBetAmount(amount) {
+            betAmount = amount;
+            $('.bet-amount').html(amount);
+        }
+
+        function addAmount() {
+            const amount = betAmount;
+            if (amount === 1000) {
+                changeBetAmount(5000);
+            } else if (amount === 5000) {
+                changeBetAmount(10000);
+            } else if (amount === 10000) {
+                changeBetAmount(50000);
+            } else if (amount === 50000) {
+                changeBetAmount(100000);
+            } else if (amount === 100000) {
+                changeBetAmount(500000);
+            } else if (amount === 500000) {
+                changeBetAmount(1000000);
+            } else if (amount === 1000000) {
+                changeBetAmount(5000000);
+            } else if (amount === 5000000) {
+                changeBetAmount(10000000);
+            }
+
+            // animate arrow up make opacity 0.5 and bigger like shadow
+            $('.bet-plus').animate({
+                opacity: 0.5,
+                fontSize: '1.5rem'
+            }, 100, function () {
+                // animate arrow up make opacity 1 and smaller like shadow
+                $('.bet-plus').animate({
+                    opacity: 1,
+                    fontSize: '1.25rem'
+                }, 100);
+            });
+        }
+
+        function removeAmount() {
+            const amount = betAmount;
+            if (amount === 1000) {
+                changeBetAmount(1000);
+            } else if (amount === 5000) {
+                changeBetAmount(1000);
+            } else if (amount === 10000) {
+                changeBetAmount(5000);
+            } else if (amount === 50000) {
+                changeBetAmount(10000);
+            } else if (amount === 100000) {
+                changeBetAmount(50000);
+            } else if (amount === 500000) {
+                changeBetAmount(100000);
+            } else if (amount === 1000000) {
+                changeBetAmount(500000);
+            } else if (amount === 5000000) {
+                changeBetAmount(1000000);
+            } else if (amount === 10000000) {
+                changeBetAmount(5000000);
+            }
+
+            // animate arrow down make opacity 0.5 and bigger like shadow
+            $('.bet-minus').animate({
+                opacity: 0.5,
+                fontSize: '1.5rem'
+            }, 100, function () {
+                // animate arrow down make opacity 1 and smaller like shadow
+                $('.bet-minus').animate({
+                    opacity: 1,
+                    fontSize: '1.25rem'
+                }, 100);
+            });
+        }
+
+        $('.span-arrow').click(function () {
+            if ($(this).find('.fa-arrow-up').length > 0) {
+                addAmount()
+            } else if ($(this).find('.fa-arrow-down').length > 0) {
+                removeAmount()
+            }
+        });
+
+        $(document).keydown(function (e) {
+            if (e.keyCode === 38) {
+                addAmount()
+            } else if (e.keyCode === 40) {
+                removeAmount()
+            }
+        });
+
+        function updateBalance(amount) {
+            const balance = $('.balance');
+            // amountStr = amount like 1 000
+            const amountStr = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            balance.html(amountStr);
+        }
+
+        updateBalance(1000)
+
+        $('.bet-button').click(function () {
+            const value = $(this).data('value');
+            socket.send(JSON.stringify({
+                type: 'bet',
+                value: value,
+                amount: betAmount
+            }));
+
+            alert('Bet on ' + value + ' with amount ' + betAmount)
+        });
+    });
+</script>
+</body>
+</html>

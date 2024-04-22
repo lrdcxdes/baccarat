@@ -1,0 +1,466 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900');
+
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 100;
+    margin: 0;
+    padding: 0;
+    background-color: #212125;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    padding: 0 20px;
+    margin: 30px auto 0;
+}
+
+.header {
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 500;
+}
+
+.result-history {
+    margin-top: 30px;
+}
+
+.history-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.history-item[data-value="banker"] {
+    background-color: #de0000; /* Red color for banker */
+}
+
+.history-item[data-value="player"] {
+    background-color: #005ae0; /* Green color for player */
+}
+
+.history-item[data-value="tie"] {
+    background-color: #209f00; /* Blue color for tie */
+}
+
+/* Hide any history items beyond the 9th */
+.result-history .history-item:nth-child(n+10) {
+    display: none;
+}
+
+
+/* cards */
+.cards {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.cards-left,
+.cards-right {
+    display: flex;
+    flex-direction: row; /* Changed from column to row */
+    /*align-items: center;*/
+}
+
+.card-1,
+.card-2 {
+    width: 125px; /* Adjusted size to medium */
+    height: 182px; /* Adjusted size to medium */
+    border: 2px solid rgba(211, 211, 211, 0.5);
+    border-radius: 10px;
+    position: relative; /* Added */
+}
+
+.card-additional {
+    width: 125px; /* Adjusted size to medium */
+    height: 182px; /* Adjusted size to medium */
+    transform: rotate(90deg);
+    display: flex;
+    justify-content: center;
+    border: 2px solid rgba(211, 211, 211, 0.5); /* Light gray, semi-transparent */
+    border-radius: 10px;
+    align-items: flex-start; /* Aligns content to the top */
+    overflow: hidden; /* Added to hide overflow content */
+    position: relative; /* Added */
+}
+
+.card-1.left,
+.card-2.left {
+    margin-left: 20px; /* Changed from margin-top to margin-left */
+}
+
+.card-1.right,
+.card-2.right {
+    margin-right: 20px; /* Changed from margin-bottom to margin-right */
+}
+
+.card-additional.left {
+    order: -1; /* Это переместит .card-additional.left в начало */
+    margin-right: 20px; /* Added */
+}
+
+.card-additional.right {
+    order: 3; /* Это переместит .card-additional.right в конец */
+    margin-left: 20px; /* Added */
+}
+
+.card-1 img,
+.card-2 img,
+.card-additional img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 125px;
+    height: 182px;
+    object-fit: cover;
+}
+
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100vh); /* Start from above the visible area */
+    }
+    100% {
+        transform: translateY(0); /* End at the normal position */
+    }
+}
+
+
+.card-1 img,
+.card-2 img,
+.card-additional img {
+    animation: slideInFromTop 0.5s ease-out;
+    border-radius: 10px;
+}
+
+
+/* Styles for the player and banker labels */
+.label {
+    text-align: center;
+    color: white;
+    font-weight: 500;
+    font-size: 2.5rem;
+}
+
+/* Styles for the scores */
+.score {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5); /* White, semi-transparent */
+    font-size: 1.8rem;
+    margin-top: 40px;
+    font-weight: 400;
+    /* add between symbol margin */
+    letter-spacing: 5px;
+}
+
+.cards-left,
+.cards-right {
+    position: relative; /* Make the card containers relative */
+}
+
+.label,
+.score {
+    /* make it under the cards + margin-top 30px */
+    position: absolute;
+    top: 120%;
+    left: 69%;
+    transform: translateX(-50%);
+    width: 100%;
+}
+
+/* make label above score */
+.label {
+    top: 120%;
+}
+
+/* make score above label */
+.score {
+    top: 120%;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    position: relative; /* Add this to position the left-menu absolutely within the menu */
+}
+
+.left-menu {
+    position: absolute;
+    left: 0;
+    top: 40%;
+    transform: translateX(-100%);
+}
+
+.span-btn {
+    width: 200px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.65); /* Blue color for player */
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    transition: background-color 0.3s;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.span-inside i {
+    margin-left: 5px;
+    font-size: 1.2rem;
+}
+
+.span-inside.green {
+    background-color: #209f00; /* Green color for tie */
+}
+
+.mt-5 {
+    margin-top: 5px;
+}
+
+.span-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.span-inside {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    background-color: rgb(255, 255, 255); /* Blue color for player */
+    border-radius: 10px;
+    padding: 5px;
+    color: black;
+}
+
+.span-arrow {
+    width: 20px;
+    height: 20px;
+    background-color: rgb(255, 255, 255); /* Blue color for player */
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+    color: black;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0 2px;
+}
+
+.bet-menu {
+    display: flex;
+    justify-content: center;
+    margin-top: 130px;
+}
+
+.bet-button {
+    width: 100px;
+    height: 100px;
+    background-color: rgb(255, 255, 255); /* Blue color for player */
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    transition: background-color 0.3s;
+}
+
+.bet-button[data-value="player"] {
+    border-radius: 10px 0 0 10px;
+}
+
+.bet-button[data-value="banker"] {
+    border-radius: 0 10px 10px 0;
+}
+
+.bet-button[data-value="player_pair"] {
+    border-radius: 10px 0 0 0;
+}
+
+.bet-button[data-value="banker_pair"] {
+    border-radius: 0 10px 0 0;
+}
+
+.bet-button[data-value="tie"] {
+    border-radius: 0;
+}
+
+.bet-button[data-value="player"]:hover {
+    background-color: #005ae0; /* Dark blue color for player */
+}
+
+.bet-button[data-value="banker"]:hover {
+    background-color: #de0000; /* Dark red color for banker */
+}
+
+.bet-button[data-value="player_pair"]:hover {
+    background-color: #005ae0; /* Dark blue color for player */
+}
+
+.bet-button[data-value="banker_pair"]:hover {
+    background-color: #de0000; /* Dark red color for banker */
+}
+
+.bet-button[data-value="tie"]:hover {
+    background-color: #209f00; /* Dark green color for tie */
+}
+
+/* сделать кнопку игрока самую большую и слева, банкира большую и справа, пара снизу посредине и ничья сверху посредине */
+.bet-button[data-value="player"] {
+    width: 200px;
+    height: 200px;
+    margin-right: 10px;
+}
+
+.bet-button[data-value="banker"] {
+    width: 200px;
+    height: 200px;
+    margin-left: 10px;
+}
+
+.bet-button[data-value="tie"] {
+    width: 200px;
+    height: 95px;
+    margin-top: 0;
+}
+
+.bet-button[data-value="player_pair"] {
+    width: 95px;
+    height: 95px;
+    margin-right: 5px;
+}
+
+.bet-button[data-value="banker_pair"] {
+    width: 95px;
+    height: 95px;
+    margin-left: 5px;
+}
+
+.bet-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.bet-button .bet-text {
+    font-size: 1.6rem;
+    font-weight: 500;
+}
+
+.bet-button .bet-info {
+    display: none;
+}
+
+/* make .pair-buttons under the data-value="tie" */
+.pair-buttons {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    /*width: 100%;*/
+    width: fit-content;
+    margin-top: 5px;
+}
+
+/* put it in the left top corner of the button */
+.bet-button .bet-item {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: white;
+}
+
+.bet-button[data-value="player"] .bet-item {
+    position: absolute;
+    top: 39.5%;
+    left: 19%;
+}
+
+.bet-button[data-value="banker"] .bet-item {
+    position: absolute;
+    top: 39.5%;
+    left: 78.25%;
+}
+
+.bet-button[data-value="tie"] .bet-item {
+    position: absolute;
+    top: 35.25%;
+    left: 48.5%;
+}
+
+.bet-button[data-value="player_pair"] .bet-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.bet-button[data-value="banker_pair"] .bet-item {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    transform: translateX(-100%);
+}
+
+img {
+    -webkit-user-drag: none;
+}
+
+/* make elements not copyable */
+span,
+h1,
+.label,
+.score {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* make elements not selectable */
+img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+.right-text {
+    /* make it at the right top corner and auto-margin and width by content to make it one-line without wrapping */
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 20px 30px;
+    text-wrap: none;
+    white-space: nowrap;
+    font-size: 1.9rem;
+    font-weight: 500;
+    color: white;
+}
