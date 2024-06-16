@@ -76,29 +76,34 @@
         <div class="bet-menu">
             <button class="bet-button" data-value="player">
                 <span class="history-item bet-item" data-value="player">И</span>
-                <span class="bet-text">Игрок</span>
+                <span class="bet-text"><img alt="Bet" src="/static/img/chip.png" class="chip is-hidden"> <span
+                        class="text">Игрок</span></span>
                 <span class="bet-info">1:1</span>
             </button>
             <button class="bet-button" data-value="tie">
                 <span class="history-item bet-item" data-value="tie">Н</span>
-                <span class="bet-text">Ничья</span>
+                <span class="bet-text"><img alt="Bet" src="/static/img/chip.png" class="chip is-hidden"> <span
+                        class="text">Ничья</span></span></span>
                 <span class="bet-info">8:1</span>
             </button>
             <div class="pair-buttons">
                 <button class="bet-button" data-value="player_pair">
                     <span class="history-item bet-item" data-value="player">П</span>
-                    <span class="bet-text">Пара</span>
+                    <span class="bet-text"><img alt="Bet" src="/static/img/chip.png" class="chip is-hidden"> <span
+                            class="text">Пара</span></span></span>
                     <span class="bet-info">10:1</span>
                 </button>
                 <button class="bet-button" data-value="banker_pair">
                     <span class="history-item bet-item" data-value="banker">П</span>
-                    <span class="bet-text">Пара</span>
+                    <span class="bet-text"><img alt="Bet" src="/static/img/chip.png" class="chip is-hidden"> <span
+                            class="text">Пара</span></span></span>
                     <span class="bet-info">10:1</span>
                 </button>
             </div>
             <button class="bet-button" data-value="banker">
                 <span class="history-item bet-item" data-value="banker">Б</span>
-                <span class="bet-text">Банкир</span>
+                <span class="bet-text"><img alt="Bet" src="/static/img/chip.png" class="chip is-hidden"> <span
+                        class="text">Банкир</span></span></span>
                 <span class="bet-info">1:1</span>
             </button>
         </div>
@@ -112,13 +117,18 @@
             console.log("[open] Соединение установлено");
             socket.send(JSON.stringify({
                 type: 'name',
-                name: 'player'
+                name: '{{ username }}'
             }));
         };
         socket.onmessage = function (event) {
             let data = JSON.parse(event.data);
             console.log(data);
-            if (data.type === 'clear') {
+            if (data.type === "error") {
+                console.error(data.message);
+            } else if (data.type === "balance") {
+                const action = data.action;
+                updateBalance(data.balance, data.actioned, action);
+            } else if (data.type === 'clear') {
                 $('.card-additional.left').html('');
                 $('.card-additional.right').html('');
                 $('.card-1.left').html('');
@@ -129,6 +139,8 @@
                 $('.score.right').html('[-]');
                 $('.bet-button').attr('disabled', false);
                 $('.left-menu .span-btn').show();
+                $('.chip').addClass('is-hidden');
+                $('.text').removeClass('is-hidden');
                 playSound('clear')
             } else if (data.type === "start") {
                 // disable all buttons in bet-menu
@@ -140,12 +152,16 @@
                 // make in format 00:00 example 00:08
                 let minutes = Math.floor(time / 60);
                 let seconds = Math.floor(time % 60);
+                if (seconds < 0) {
+                    seconds = 0;
+                }
                 let timeText = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
                 const t = $('.time');
                 if (seconds === 0 && minutes === 0) {
                     t.html('00:00');
+                } else {
+                    t.html(timeText);
                 }
-                t.html(timeText);
             } else if (data.type === "history") {
                 let history = data.history;
                 let resultHistory = $('.result-history .history-item');
@@ -158,6 +174,8 @@
                         resultText = 'И';
                     } else if (history[i].winner === 'tie') {
                         resultText = 'Н';
+                    } else if (history[i].winner === 'banker_pair' || history[i].winner === 'player_pair') {
+                        resultText = 'П';
                     }
                     $('.result-history').prepend(`<span class="history-item" data-value="${history[i].winner}">${resultText}</span>`);
                 }
@@ -206,6 +224,8 @@
                     resultText = 'И';
                 } else if (winner === 'tie') {
                     resultText = 'Н';
+                } else if (winner === 'banker_pair' || winner === 'player_pair') {
+                    resultText = 'П';
                 }
                 let resultHistory = $('.result-history .history-item');
                 // if len > 9, then remove last and put first
@@ -252,6 +272,9 @@
         const sounds = {
             'deal': new Audio('/static/audio/deal.m4a'),
             'clear': new Audio('/static/audio/clear.m4a'),
+            'money': new Audio('/static/audio/money.m4a'),
+            'bet': new Audio('/static/audio/bet.m4a'),
+            'unbet': new Audio('/static/audio/unbet.m4a'),
         }
 
         function playSound(sound) {
@@ -349,24 +372,109 @@
             }
         });
 
-        function updateBalance(amount) {
+        function updateBalance(amount, actioned, action) {
             const balance = $('.balance');
-            // amountStr = amount like 1 000
             const amountStr = amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-            balance.html(amountStr);
+            let actionedStr;
+            if (actioned) {
+                actionedStr = actioned.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+            } else {
+                actionedStr = '0';
+            }
+            // balance.html(amountStr);
+            // if action == 'win', then make actioned green color left from balance and font-size is smaller than balance, and show it for 1.5s
+            if (action === 'win') {
+                balance.html(`${amountStr} <span class="actioned green">+${actionedStr}</span>`);
+                $('.actioned').animate({
+                    fontSize: '1.25rem'
+                }, 100, function () {
+                    $('.actioned').animate({
+                        fontSize: '1rem'
+                    }, 100);
+                });
+                setTimeout(function () {
+                    $('.actioned').remove();
+                    balance.html(amountStr);
+                }, 1500);
+                playSound('money')
+            } else if (action === 'remove') {
+                balance.html(`${amountStr} <span class="actioned red">-${actionedStr}</span>`);
+                $('.actioned').animate({
+                    fontSize: '1.25rem'
+                }, 100, function () {
+                    $('.actioned').animate({
+                        fontSize: '1rem'
+                    }, 100);
+                });
+                setTimeout(function () {
+                    $('.actioned').remove();
+                    balance.html(amountStr);
+                }, 1500);
+                playSound('money')
+            } else {
+                balance.html(amountStr);
+            }
         }
 
-        updateBalance(1000)
+        function hideText(button) {
+            const text = button.find('.text');
+            text.addClass('is-hidden');
+        }
 
-        $('.bet-button').click(function () {
+        function showText(button) {
+            const text = button.find('.text');
+            text.removeClass('is-hidden');
+        }
+
+        function betChip(button) {
+            const chip = button.find('.chip');
+            chip.removeClass('is-hidden');
+            hideText(button)
+        }
+
+        function unbetChip(button) {
+            const chip = button.find('.chip');
+            chip.addClass('is-hidden');
+            showText(button)
+        }
+
+        const betBtn = $('.bet-button');
+
+        betBtn.mousedown(function (event) {
             const value = $(this).data('value');
-            socket.send(JSON.stringify({
-                type: 'bet',
-                value: value,
-                amount: betAmount
-            }));
+            switch (event.which) {
+                case 1: // Left Mouse button clicked
+                    if ($(this).attr('disabled') || betAmount > parseInt($('.balance').text().replace(/\s/g, ''))) {
+                        return;
+                    }
+                    socket.send(JSON.stringify({
+                        type: 'bet',
+                        value: value,
+                        amount: betAmount
+                    }));
+                    playSound('bet');
+                    betChip($(this));
+                    break;
+                case 3: // Right Mouse button clicked
+                    if ($(this).attr('disabled') || $(this).find('.chip').hasClass('is-hidden')) {
+                        return;
+                    }
+                    socket.send(JSON.stringify({
+                        type: 'unbet',
+                        value: value,
+                        amount: betAmount
+                    }));
+                    playSound('unbet');
+                    unbetChip($(this));
+                    break;
+                default:
+                // Other mouse button clicked
+            }
+        });
 
-            alert('Bet on ' + value + ' with amount ' + betAmount)
+        // Prevent the context menu from showing up on right click
+        betBtn.contextmenu(function (event) {
+            event.preventDefault();
         });
     });
 </script>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/gh/eliyantosarage/font-awesome-pro@main/fontawesome-pro-6.5.1-web/css/all.min.css"
+          rel="stylesheet">
+    <!-- Изменить баланс, закончить/запустить игру, сделать стили и т.д. -->
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+        }
+
+        .admin-panel {
+            max-width: 800px;
+            margin: 50px auto 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-panel h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .admin-panel .admin-panel__button {
+            max-width: 250px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .admin-panel .admin-panel__button:hover {
+            background-color: #444;
+        }
+
+        .admin-panel .admin-panel__button--red {
+            background-color: #d9534f;
+        }
+
+        .admin-panel .admin-panel__button--red:hover {
+            background-color: #c9302c;
+        }
+
+        .admin-panel .admin-panel__button--green {
+            background-color: #5cb85c;
+        }
+
+        .admin-panel .admin-panel__button--green:hover {
+            background-color: #4cae4c;
+        }
+
+        .admin-panel .admin-panel__button--blue {
+            background-color: #5bc0de;
+        }
+
+        .admin-panel .admin-panel__button--blue:hover {
+            background-color: #46b8da;
+        }
+
+        .admin-panel .admin-panel__button--yellow {
+            background-color: #f0ad4e;
+        }
+
+        .admin-panel .admin-panel__button--yellow:hover {
+            background-color: #eea236;
+        }
+
+        .admin-panel .admin-panel__button--purple {
+            background-color: #9b59b6;
+        }
+
+        .admin-panel .admin-panel__button--purple:hover {
+            background-color: #8e44ad;
+        }
+
+        .admin-panel .admin-panel__button--orange {
+            background-color: #f39c12;
+        }
+
+        .admin-panel .admin-panel__button--orange:hover {
+            background-color: #d58512;
+        }
+
+        .modal__overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal {
+            max-width: 400px;
+            margin: 100px auto 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal__header h2 {
+            margin: 0;
+        }
+
+        .modal__body {
+            margin-bottom: 20px;
+        }
+
+        .modal__footer {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal__button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal__button--red {
+            background-color: #d9534f;
+            color: #fff;
+        }
+
+        .modal__button--red:hover {
+            background-color: #c9302c;
+        }
+
+        .modal__button--green {
+            background-color: #5cb85c;
+            color: #fff;
+        }
+
+        .modal__button--green:hover {
+            background-color: #4cae4c;
+        }
+
+        .modal__close {
+            padding: 5px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+        .modal__close:hover {
+            background-color: #f1f1f1;
+        }
+
+        .modal__close i {
+            color: #333;
+        }
+
+        .modal__close i:hover {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="modal__overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal__header">
+            <h2>Заголовок модального окна</h2>
+            <button class="modal__close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal__body">
+            <p>Текст модального окна</p>
+        </div>
+        <div class="modal__footer">
+            <button class="modal__button modal__button--red">Закрыть</button>
+            <button class="modal__button modal__button--green">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<div class="admin-panel">
+    <h2>Admin Panel</h2>
+    <button class="admin-panel__button admin-panel__button--red">Заблокировать пользователя</button>
+    <button class="admin-panel__button admin-panel__button--green">Разблокировать пользователя</button>
+    <button class="admin-panel__button admin-panel__button--blue">Изменить баланс</button>
+    <button class="admin-panel__button admin-panel__button--yellow">Закончить/запустить игру</button>
+    <button class="admin-panel__button admin-panel__button--purple">Сделать что-то ещё</button>
+    <button class="admin-panel__button admin-panel__button--orange">Сделать что-то ещё</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.admin-panel__button').click(function () {
+            if ($(this).text() === "Изменить баланс") {
+                $('.modal__header h2').text("Изменить баланс");
+                $('.modal__body').html(`
+                    <input type="text" placeholder="Введите Ник пользователя">
+                    <input type="text" placeholder="Введите сумму">
+                `);
+                $('.modal__footer').html('<button class="modal__button modal__button--red">Закрыть</button><button class="modal__button modal__button--green">Сохранить</button>');
+
+                $('.modal__button--green').click(function () {
+                    let username = $('input[type="text"]:eq(0)').val();
+                    let amount = $('input[type="text"]:eq(1)').val();
+                    $.ajax({
+                        url: '/admin/change_balance',
+                        type: 'POST',
+                        data: {
+                            username: username,
+                            balance: amount
+                        },
+                        success: function (data) {
+                            if (data.error)
+                                alert(data.error);
+                            else
+                                alert(data.message);
+                        },
+                        error: function () {
+                            alert('Ошибка');
+                        }
+                    });
+                });
+            } else if ($(this).text() === "Закончить/запустить игру") {
+                $('.modal__header h2').text("Закончить/запустить игру");
+                $('.modal__body').html('<input type="submit" value="Закончить игру">');
+                $('.modal__footer').html('<button class="modal__button modal__button--red">Закрыть</button><button class="modal__button modal__button--green">Сохранить</button>');
+            } else {
+                $('.modal__header h2').text("Заголовок модального окна");
+                $('.modal__body').html('<p>Текст модального окна</p>');
+                $('.modal__footer').html('<button class="modal__button modal__button--red">Закрыть</button><button class="modal__button modal__button--green">Сохранить</button>');
+            }
+            $('.modal__overlay').fadeIn();
+        });
+
+        $('.modal__close, .modal__button--red').click(function () {
+            $('.modal__overlay').fadeOut();
+        });
+    });
+</script>
+</body>
+</html>

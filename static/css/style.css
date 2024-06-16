@@ -50,11 +50,14 @@ body {
     font-weight: 400;
 }
 
-.history-item[data-value="banker"] {
+.history-item[data-value="banker"],
+.history-item[data-value="banker_pair"] {
     background-color: #de0000; /* Red color for banker */
 }
 
-.history-item[data-value="player"] {
+.history-item[data-value="player"],
+.history-item[data-value="player_pair"]
+{
     background-color: #005ae0; /* Green color for player */
 }
 
@@ -463,4 +466,21 @@ img {
     font-size: 1.9rem;
     font-weight: 500;
     color: white;
+}
+
+.chip {
+    width: 100px;
+    height: 100px;
+}
+
+.is-hidden {
+    display: none;
+}
+
+.actioned {}
+.actioned.red {
+    color: #de0000;
+}
+.actioned.green {
+    color: #209f00;
 }
