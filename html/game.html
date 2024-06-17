@@ -427,9 +427,10 @@
 
         function betChip(button) {
             $('.chip').addClass('is-hidden');
+            $('.text').removeClass('is-hidden');
             const chip = button.find('.chip');
             chip.removeClass('is-hidden');
-            hideText(button)
+            hideText(button);
         }
 
         function unbetChip(button) {
