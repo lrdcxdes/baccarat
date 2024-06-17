@@ -35,7 +35,8 @@ async def index(request: Request):
 async def game(request: Request):
     username = get_username(request)
     return templates.TemplateResponse(
-        "game.html", {"request": request, "username": username}
+        "game.html", {"request": request, "username": username,
+                      "FONTAWESOME_URL": FONTAWESOME_URL}
     )
 
 
