@@ -14,6 +14,8 @@ import logging
 
 from starlette.websockets import WebSocketDisconnect
 
+from config import FONTAWESOME_URL
+
 app = FastAPI()
 templates = Jinja2Templates(directory="html")
 app.mount("/static", StaticFiles(directory="static"), name="static")

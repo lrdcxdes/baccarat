@@ -215,6 +215,11 @@
                 `);
                 $('.modal__footer').html('<button class="modal__button modal__button--red">Закрыть</button><button class="modal__button modal__button--green">Сохранить</button>');
 
+                $('.modal__button--red').click(function () {
+                    // close modal
+                    $('.modal__overlay').fadeOut();
+                });
+
                 $('.modal__button--green').click(function () {
                     let username = $('input[type="text"]:eq(0)').val();
                     let amount = $('input[type="text"]:eq(1)').val();
