@@ -14,7 +14,7 @@ import logging
 
 from starlette.websockets import WebSocketDisconnect
 
-from config import FONTAWESOME_URL
+from config import FONTAWESOME_URL, ADMIN_PASSWORD
 
 app = FastAPI()
 templates = Jinja2Templates(directory="html")
@@ -37,8 +37,8 @@ async def index(request: Request):
 async def game(request: Request):
     username = get_username(request)
     return templates.TemplateResponse(
-        "game.html", {"request": request, "username": username,
-                      "FONTAWESOME_URL": FONTAWESOME_URL}
+        "game.html",
+        {"request": request, "username": username, "FONTAWESOME_URL": FONTAWESOME_URL},
     )
 
 
@@ -68,14 +68,14 @@ async def admin_login_post(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin(request: Request):
-    if request.cookies.get("admin") != "password":
+    if request.cookies.get("admin") != ADMIN_PASSWORD:
         return RedirectResponse(url="/admin/login")
     return templates.TemplateResponse("admin.html", {"request": request})
 
 
 @app.post("/admin/change_balance")
 async def change_balance(request: Request):
-    if request.cookies.get("admin") != "password":
+    if request.cookies.get("admin") != ADMIN_PASSWORD:
         return RedirectResponse(url="/admin/login")
     data = await request.form()
     player = game.players.get(data["username"])
@@ -88,7 +88,14 @@ async def change_balance(request: Request):
         action = "remove"
     else:
         action = "win"
-    await player.send({"type": "balance", "balance": player.balance, "action": action, "actioned": actioned})
+    await player.send(
+        {
+            "type": "balance",
+            "balance": player.balance,
+            "action": action,
+            "actioned": actioned,
+        }
+    )
     return {"message": "Balance updated"}
 
 
