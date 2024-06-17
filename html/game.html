@@ -426,6 +426,7 @@
         }
 
         function betChip(button) {
+            $('.chip').addClass('is-hidden');
             const chip = button.find('.chip');
             chip.removeClass('is-hidden');
             hideText(button)

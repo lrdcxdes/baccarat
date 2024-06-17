@@ -14,7 +14,7 @@ import logging
 
 from starlette.websockets import WebSocketDisconnect
 
-from config import FONTAWESOME_URL, ADMIN_PASSWORD
+import config
 
 app = FastAPI()
 templates = Jinja2Templates(directory="html")
@@ -38,7 +38,11 @@ async def game(request: Request):
     username = get_username(request)
     return templates.TemplateResponse(
         "game.html",
-        {"request": request, "username": username, "FONTAWESOME_URL": FONTAWESOME_URL},
+        {
+            "request": request,
+            "username": username,
+            "FONTAWESOME_URL": config.FONTAWESOME_URL,
+        },
     )
 
 
@@ -68,14 +72,14 @@ async def admin_login_post(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin(request: Request):
-    if request.cookies.get("admin") != ADMIN_PASSWORD:
+    if request.cookies.get("admin") != config.ADMIN_PASSWORD:
         return RedirectResponse(url="/admin/login")
     return templates.TemplateResponse("admin.html", {"request": request})
 
 
 @app.post("/admin/change_balance")
 async def change_balance(request: Request):
-    if request.cookies.get("admin") != ADMIN_PASSWORD:
+    if request.cookies.get("admin") != config.ADMIN_PASSWORD:
         return RedirectResponse(url="/admin/login")
     data = await request.form()
     player = game.players.get(data["username"])
@@ -166,9 +170,10 @@ class Player:
         if bet > self.balance:
             await self.send({"type": "error", "message": "Insufficient balance"})
             return
-        if self.bet:
-            await self.send({"type": "error", "message": "You already placed a bet"})
-            return
+        # if self.bet:
+        #     await self.send({"type": "error", "message": "You already placed a bet"})
+        #     return
+        await self.remove_bet()
         self.bet = Bet(self, bet_type, bet)
 
     async def remove_bet(self):
