@@ -30,7 +30,7 @@ pip install -r requirements.txt
     environment variables:
 ```env
 # Change to your own values
-# You can get fontawesome kit 6.5.2 from https://fontawesome.com/
+# You can get fontawesome kit 6.5.2 pro from https://fontawesome.com/
 FONTAWESOME_URL=/static/fafonts/all.min.css
 ADMIN_PASSWORD=admin
 ```
